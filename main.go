@@ -38,6 +38,7 @@ func main() {
 
 	c.register("login", handleLogin)
 	c.register("register", handleRegistration)
+	c.register("reset", handleReset)
 
 	cmd := command{
 		name:      os.Args[1],
