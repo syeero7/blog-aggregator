@@ -11,8 +11,8 @@ import (
 )
 
 type state struct {
-	config *config.Config
-	db     *database.Queries
+	cfg *config.Config
+	db  *database.Queries
 }
 
 func main() {
@@ -29,7 +29,7 @@ func main() {
 	}
 	dbQueries := database.New(db)
 
-	s := state{config: &cfg, db: dbQueries}
+	s := state{cfg: &cfg, db: dbQueries}
 	c := commands{commands: make(map[string]func(*state, command) error)}
 	if len(os.Args) < 2 {
 		fmt.Println("insufficient arguments provided")

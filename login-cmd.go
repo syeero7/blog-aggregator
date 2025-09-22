@@ -16,7 +16,7 @@ func handleLogin(s *state, cmd command) error {
 		return err
 	}
 
-	if err := s.config.SetUser(user.Name); err != nil {
+	if err := s.cfg.SetUser(user.Name); err != nil {
 		return err
 	}
 
