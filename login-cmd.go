@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 )
@@ -10,11 +11,15 @@ func handleLogin(s *state, cmd command) error {
 		return errors.New("missing required argument 'username'")
 	}
 
-	username := cmd.arguments[0]
-	if err := s.config.SetUser(username); err != nil {
+	user, err := s.db.GetUser(context.Background(), cmd.arguments[0])
+	if err != nil {
 		return err
 	}
 
-	fmt.Printf("setting the user '%s' was successful\n", username)
+	if err := s.config.SetUser(user.Name); err != nil {
+		return err
+	}
+
+	fmt.Printf("setting the user '%s' was successful\n", user.Name)
 	return nil
 }
