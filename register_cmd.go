@@ -15,13 +15,13 @@ func handleRegistration(s *state, cmd command) error {
 		return errors.New("missing required argument 'username'")
 	}
 
-	userParams := database.CreateUserParams{
+	userData := database.CreateUserParams{
 		ID:        uuid.New(),
 		Name:      cmd.arguments[0],
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	user, err := s.db.CreateUser(context.Background(), userParams)
+	user, err := s.db.CreateUser(context.Background(), userData)
 	if err != nil {
 		return err
 	}
