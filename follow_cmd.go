@@ -9,17 +9,12 @@ import (
 	"github.com/syeero7/blog-aggregator/internal/database"
 )
 
-func handleFollowFeed(s *state, cmd command) error {
+func handleFollowFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.arguments) == 0 {
 		return errors.New("missing required argument 'feed url'")
 	}
 
 	feed, err := s.db.GetFeedByURL(context.Background(), cmd.arguments[0])
-	if err != nil {
-		return err
-	}
-
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
 	if err != nil {
 		return err
 	}

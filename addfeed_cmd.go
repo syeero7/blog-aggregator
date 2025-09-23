@@ -9,14 +9,9 @@ import (
 	"github.com/syeero7/blog-aggregator/internal/database"
 )
 
-func handleAddFeed(s *state, cmd command) error {
+func handleAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.arguments) != 2 {
 		return errors.New("missing required arguments 'feed name' and 'feed url'")
-	}
-
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return err
 	}
 
 	feedData := database.CreateFeedParams{

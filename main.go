@@ -41,9 +41,9 @@ func main() {
 	c.register("reset", handleReset)
 	c.register("users", handleListUsers)
 	c.register("agg", handleAggregation)
-	c.register("addfeed", handleAddFeed)
+	c.register("addfeed", middlewareLoggedIn(handleAddFeed))
 	c.register("feeds", handleGetFeeds)
-	c.register("follow", handleFollowFeed)
+	c.register("follow", middlewareLoggedIn(handleFollowFeed))
 	c.register("following", handleGetFollowing)
 
 	cmd := command{
