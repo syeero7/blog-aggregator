@@ -27,8 +27,8 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	dbQueries := database.New(db)
 
+	dbQueries := database.New(db)
 	s := state{cfg: &cfg, db: dbQueries}
 	c := commands{commands: make(map[string]func(*state, command) error)}
 	if len(os.Args) < 2 {
@@ -40,6 +40,7 @@ func main() {
 	c.register("register", handleRegistration)
 	c.register("reset", handleReset)
 	c.register("users", handleListUsers)
+	c.register("agg", handleAggregation)
 
 	cmd := command{
 		name:      os.Args[1],
