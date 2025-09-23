@@ -38,3 +38,17 @@ func handleFollowFeed(s *state, cmd command) error {
 	fmt.Printf("user '%s' is now following the '%s' feed", followFeed.Username, followFeed.FeedName)
 	return nil
 }
+
+func handleGetFollowing(s *state, _ command) error {
+	followingFeeds, err := s.db.GetFeedFollowsForUser(context.Background(), s.cfg.CurrentUserName)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("feeds followed by %s", s.cfg.CurrentUserName)
+	for _, feed := range followingFeeds {
+		fmt.Printf("* feed: %s | creator: %s\n", feed.FeedName, feed.Creator)
+	}
+
+	return nil
+}
