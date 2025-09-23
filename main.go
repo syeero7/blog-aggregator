@@ -41,6 +41,7 @@ func main() {
 	c.register("reset", handleReset)
 	c.register("users", handleListUsers)
 	c.register("agg", handleAggregation)
+	c.register("addfeed", handleAddFeed)
 
 	cmd := command{
 		name:      os.Args[1],
