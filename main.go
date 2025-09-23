@@ -43,6 +43,7 @@ func main() {
 	c.register("agg", handleAggregation)
 	c.register("addfeed", handleAddFeed)
 	c.register("feeds", handleGetFeeds)
+	c.register("follow", handleFollowFeed)
 
 	cmd := command{
 		name:      os.Args[1],

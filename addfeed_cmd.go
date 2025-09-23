@@ -11,7 +11,7 @@ import (
 
 func handleAddFeed(s *state, cmd command) error {
 	if len(cmd.arguments) != 2 {
-		return errors.New("missing required arguments ' feed name' and 'feed url'")
+		return errors.New("missing required arguments 'feed name' and 'feed url'")
 	}
 
 	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
@@ -29,6 +29,16 @@ func handleAddFeed(s *state, cmd command) error {
 
 	feed, err := s.db.CreateFeed(context.Background(), feedData)
 	if err != nil {
+		return err
+	}
+
+	feedFollowData := database.CreateFeedFollowParams{
+		FeedID:    feed.ID,
+		UserID:    user.ID,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	if _, err := s.db.CreateFeedFollow(context.Background(), feedFollowData); err != nil {
 		return err
 	}
 
