@@ -45,6 +45,7 @@ func main() {
 	c.register("feeds", handleGetFeeds)
 	c.register("follow", middlewareLoggedIn(handleFollowFeed))
 	c.register("following", handleGetFollowing)
+	c.register("unfollow", middlewareLoggedIn(handleUnfollowFeed))
 
 	cmd := command{
 		name:      os.Args[1],
