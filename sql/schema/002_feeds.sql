@@ -9,5 +9,7 @@ CREATE TABLE feeds (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+ALTER TABLE feeds ADD COLUMN last_fetched_at TIMESTAMP;
+
 -- +goose Down
 DROP TABLE feeds;

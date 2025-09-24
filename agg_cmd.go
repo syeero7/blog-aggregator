@@ -2,23 +2,34 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"html"
 	"io"
 	"net/http"
+	"time"
+
+	"github.com/syeero7/blog-aggregator/internal/database"
 )
 
-func handleAggregation(_ *state, _ command) error {
-	tmpURL := "https://www.wagslane.dev/index.xml"
-	escFeed, err := fetchFeed(context.Background(), tmpURL)
+func handleAggregation(s *state, cmd command) error {
+	if len(cmd.arguments) == 0 {
+		return errors.New("missing required argument 'time between requests'")
+	}
+
+	timeBetweenRequests, err := time.ParseDuration(cmd.arguments[0])
 	if err != nil {
 		return err
 	}
 
-	feed := unescapeFeed(escFeed)
-	fmt.Printf("%+v\n", *feed)
-	return nil
+	ticker := time.NewTicker(timeBetweenRequests)
+	for ; ; <-ticker.C {
+		if err := scrapeFeeds(s.db); err != nil {
+			return err
+		}
+	}
 }
 
 type RSSFeed struct {
@@ -78,4 +89,32 @@ func unescapeFeed(feed *RSSFeed) *RSSFeed {
 
 	f.Channel.Item = escapedItems
 	return &f
+}
+
+func scrapeFeeds(db *database.Queries) error {
+	nextFeed, err := db.GetNextFeedToFetch(context.Background())
+	if err != nil {
+		return err
+	}
+
+	feedToMark := database.MarkFeedFetchedParams{
+		ID:            nextFeed.ID,
+		UpdatedAt:     time.Now(),
+		LastFetchedAt: sql.NullTime{Time: time.Now(), Valid: true},
+	}
+	if err := db.MarkFeedFetched(context.Background(), feedToMark); err != nil {
+		return err
+	}
+
+	escFeed, err := fetchFeed(context.Background(), nextFeed.Url)
+	if err != nil {
+		return err
+	}
+
+	feed := unescapeFeed(escFeed)
+	for _, item := range feed.Channel.Item {
+		fmt.Println(item.Title)
+	}
+
+	return nil
 }
