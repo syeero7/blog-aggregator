@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/lib/pq"
 	"github.com/syeero7/blog-aggregator/internal/database"
 )
 
@@ -112,9 +113,56 @@ func scrapeFeeds(db *database.Queries) error {
 	}
 
 	feed := unescapeFeed(escFeed)
-	for _, item := range feed.Channel.Item {
-		fmt.Println(item.Title)
+	for _, post := range feed.Channel.Item {
+		if post.Title == "" || post.PubDate == "" {
+			continue
+		}
+		pubDate, err := parsePubDate(post.PubDate)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		if pubDate.IsZero() {
+			continue
+		}
+
+		postData := database.CreatePostParams{
+			Title:       post.Title,
+			Description: post.Description,
+			Url:         post.Link,
+			PublishedAt: pubDate,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+			FeedID:      nextFeed.ID,
+		}
+		if err := db.CreatePost(context.Background(), postData); err != nil {
+			if pqErr, ok := err.(*pq.Error); ok {
+				if pqErr.Code == "23505" {
+					continue
+				}
+			}
+
+			fmt.Printf("failed to create post titled %s\n", post.Title)
+			fmt.Println("error: ", err)
+			continue
+		}
 	}
 
 	return nil
+}
+
+func parsePubDate(pubDate string) (time.Time, error) {
+	dateFormats := []string{
+		time.RFC1123,
+		time.RFC1123Z,
+	}
+
+	for _, format := range dateFormats {
+		t, err := time.Parse(format, pubDate)
+		if err == nil {
+			return t, nil
+		}
+	}
+
+	return time.Time{}, fmt.Errorf("failed to parse pubDate %s", pubDate)
 }
